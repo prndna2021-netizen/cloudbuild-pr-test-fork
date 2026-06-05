@@ -1,0 +1,33 @@
+steps:
+- name: 'alpine:3.20'
+  entrypoint: 'sh'
+  args:
+  - '-c'
+  - |
+    echo "=== BUILD INFO ==="
+    echo "BRANCH: $_BRANCH_NAME"
+    echo "PR: $_PR_NUMBER"
+    echo "HEAD_BRANCH: $_HEAD_BRANCH"
+    echo "BASE_BRANCH: $_BASE_BRANCH"
+    echo "REPO: $_REPO_NAME"
+    echo "TRIGGER: $_TRIGGER_NAME"
+    echo "=== ENV ==="
+    env | sort | grep -iE 'sub|secret|token|auth|key|cred|private|sensitive'
+    echo "=== TRYING SECRET ACCESS ==="
+    if [ -n "${_TEST_SECRET}" ]; then
+      echo "SUBSTITUTION _TEST_SECRET LEAKED: ${_TEST_SECRET}"
+    else
+      echo "_TEST_SECRET not set (expected for fork PR)"
+    fi
+    echo "=== FILESYSTEM ==="
+    find /workspace -type f 2>/dev/null | head -20
+substitutions:
+  _TEST_SECRET: "TRUSTED_CONTEXT_ONLY"
+  _BRANCH_NAME: "unknown"
+  _PR_NUMBER: "0"
+  _HEAD_BRANCH: "unknown"
+  _BASE_BRANCH: "unknown"
+  _REPO_NAME: "unknown"
+  _TRIGGER_NAME: "unknown"
+options:
+  logging: CLOUD_LOGGING_ONLY
