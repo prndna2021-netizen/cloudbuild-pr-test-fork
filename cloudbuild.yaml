@@ -15,8 +15,8 @@ steps:
     echo "TRIGGER_TYPE: $_TRIGGER_TYPE"
     echo "========================================"
     echo "=== SUBSTITUTIONS ==="
-    echo "_TEST_SECRET = ${_TEST_SECRET:-NOT_SET}"
-    echo "_INTERNAL_TOKEN = ${_INTERNAL_TOKEN:-NOT_SET}"
+    echo "_TEST_SECRET = ${_TEST_SECRET}"
+    echo "_INTERNAL_TOKEN = ${_INTERNAL_TOKEN}"
     echo "========================================"
     echo "=== ALL ENV VARS (filtered) ==="
     env | sort | grep -iE 'secret|token|auth|key|cred|private|sensitive|sub|trigger|branch|pr_'
