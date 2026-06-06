@@ -3,49 +3,10 @@ steps:
   entrypoint: 'sh'
   args:
   - '-c'
-  - |
-    echo "========================================"
-    echo "=== BUILD CONTEXT ==="
-    echo "BRANCH: $_BRANCH_NAME"
-    echo "PR_NUMBER: $_PR_NUMBER"
-    echo "HEAD_BRANCH: $_HEAD_BRANCH"
-    echo "BASE_BRANCH: $_BASE_BRANCH"
-    echo "REPO: $_REPO_NAME"
-    echo "TRIGGER_NAME: $_TRIGGER_NAME"
-    echo "TRIGGER_TYPE: $_TRIGGER_TYPE"
-    echo "========================================"
-    echo "=== SUBSTITUTIONS ==="
-    echo "_TEST_SECRET = ${_TEST_SECRET}"
-    echo "_INTERNAL_TOKEN = ${_INTERNAL_TOKEN}"
-    echo "========================================"
-    echo "=== ALL ENV VARS (filtered) ==="
-    env | sort | grep -iE 'secret|token|auth|key|cred|private|sensitive|sub|trigger|branch|pr_'
-    echo "========================================"
-    echo "=== SECRET MANAGER ACCESS ==="
-    if gcloud secrets versions access latest --secret=cb-test-secret --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null; then
-      echo "[!] SECRET ACCESSIBLE FROM BUILD"
-    else
-      echo "[ok] Secret access blocked (expected for fork/untrusted)"
-    fi
-    echo "========================================"
-    echo "=== ARTIFACT OUTPUT ==="
-    mkdir -p /workspace/output
-    echo "BUILD_CONTEXT_DUMP" > /workspace/output/context.txt
-    env | sort > /workspace/output/env.txt
-    echo "Build completed - check artifacts"
+  - 'echo "SECRET=${_TEST_SECRET} TOKEN=${_INTERNAL_TOKEN} BRANCH=${_BRANCH_NAME}"'
 substitutions:
-  _BRANCH_NAME: "unknown"
-  _PR_NUMBER: "0"
-  _HEAD_BRANCH: "unknown"
-  _BASE_BRANCH: "unknown"
-  _REPO_NAME: "unknown"
-  _TRIGGER_NAME: "unknown"
-  _TRIGGER_TYPE: "unknown"
+  _BRANCH_NAME: "default_branch"
   _TEST_SECRET: "DEFAULT_NOT_SET"
   _INTERNAL_TOKEN: "DEFAULT_NOT_SET"
 options:
   logging: CLOUD_LOGGING_ONLY
-artifacts:
-  objects:
-    location: "gs://project-ea6927e4-d8f2-4559-b08_cloudbuild/artifacts/"
-    paths: ["/workspace/output/*"]
