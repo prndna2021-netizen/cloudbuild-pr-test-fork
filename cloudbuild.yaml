@@ -4,30 +4,52 @@ steps:
   args:
   - '-c'
   - |
-    echo "=== BUILD INFO ==="
+    echo "========================================"
+    echo "=== BUILD CONTEXT ==="
     echo "BRANCH: $_BRANCH_NAME"
-    echo "PR: $_PR_NUMBER"
+    echo "PR_NUMBER: $_PR_NUMBER"
     echo "HEAD_BRANCH: $_HEAD_BRANCH"
     echo "BASE_BRANCH: $_BASE_BRANCH"
     echo "REPO: $_REPO_NAME"
-    echo "TRIGGER: $_TRIGGER_NAME"
-    echo "=== ENV ==="
-    env | sort | grep -iE 'sub|secret|token|auth|key|cred|private|sensitive'
-    echo "=== TRYING SECRET ACCESS ==="
-    if [ -n "${_TEST_SECRET}" ]; then
-      echo "SUBSTITUTION _TEST_SECRET LEAKED: ${_TEST_SECRET}"
+    echo "TRIGGER_NAME: $_TRIGGER_NAME"
+    echo "TRIGGER_TYPE: $_TRIGGER_TYPE"
+    echo "========================================"
+    echo "=== SUBSTITUTIONS ==="
+    echo "_TEST_SECRET = ${_TEST_SECRET:-NOT_SET}"
+    echo "_INTERNAL_TOKEN = ${_INTERNAL_TOKEN:-NOT_SET}"
+    echo "========================================"
+    echo "=== ALL ENV VARS (filtered) ==="
+    env | sort | grep -iE 'secret|token|auth|key|cred|private|sensitive|sub|trigger|branch|pr_'
+    echo "========================================"
+    echo "=== SECRET MANAGER ACCESS ==="
+    if gcloud secrets versions access latest --secret=cb-test-secret --project=$PROJ 2>/dev/null; then
+      echo "[!] SECRET ACCESSIBLE FROM BUILD"
     else
-      echo "_TEST_SECRET not set (expected for fork PR)"
+      echo "[ok] Secret access blocked (expected for fork/untrusted)"
     fi
-    echo "=== FILESYSTEM ==="
-    find /workspace -type f 2>/dev/null | head -20
+    echo "========================================"
+    echo "=== ARTIFACT OUTPUT ==="
+    mkdir -p /workspace/output
+    echo "BUILD_CONTEXT_DUMP" > /workspace/output/context.txt
+    env | sort > /workspace/output/env.txt
+    echo "Build completed - check artifacts"
 substitutions:
-  _TEST_SECRET: "TRUSTED_CONTEXT_ONLY"
+  _TEST_SECRET: "TRUSTED_DEFAULT_VALUE"
+  _INTERNAL_TOKEN: "TOKEN_TRUSTED_CONTEXT"
   _BRANCH_NAME: "unknown"
   _PR_NUMBER: "0"
   _HEAD_BRANCH: "unknown"
   _BASE_BRANCH: "unknown"
   _REPO_NAME: "unknown"
   _TRIGGER_NAME: "unknown"
+  _TRIGGER_TYPE: "unknown"
+availableSecrets:
+  secretManager:
+  - versionName: projects/${PROJECT_NUMBER}/secrets/cb-test-secret/versions/latest
+    env: "SECRET_FROM_MANAGER"
 options:
   logging: CLOUD_LOGGING_ONLY
+artifacts:
+  objects:
+    location: "gs://${PROJECT_ID}_cloudbuild/artifacts/"
+    paths: ["/workspace/output/*"]
