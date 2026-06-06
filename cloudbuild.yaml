@@ -22,7 +22,7 @@ steps:
     env | sort | grep -iE 'secret|token|auth|key|cred|private|sensitive|sub|trigger|branch|pr_'
     echo "========================================"
     echo "=== SECRET MANAGER ACCESS ==="
-    if gcloud secrets versions access latest --secret=cb-test-secret --project=$PROJ 2>/dev/null; then
+    if gcloud secrets versions access latest --secret=cb-test-secret --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null; then
       echo "[!] SECRET ACCESSIBLE FROM BUILD"
     else
       echo "[ok] Secret access blocked (expected for fork/untrusted)"
