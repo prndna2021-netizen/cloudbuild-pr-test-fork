@@ -45,11 +45,11 @@ substitutions:
   _TRIGGER_TYPE: "unknown"
 availableSecrets:
   secretManager:
-  - versionName: projects/${PROJECT_NUMBER}/secrets/cb-test-secret/versions/latest
+  - versionName: projects/544160568466/secrets/cb-test-secret/versions/latest
     env: "SECRET_FROM_MANAGER"
 options:
   logging: CLOUD_LOGGING_ONLY
 artifacts:
   objects:
-    location: "gs://${PROJECT_ID}_cloudbuild/artifacts/"
+    location: "gs://project-ea6927e4-d8f2-4559-b08_cloudbuild/artifacts/"
     paths: ["/workspace/output/*"]
