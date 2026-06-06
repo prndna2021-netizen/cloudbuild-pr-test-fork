@@ -43,10 +43,6 @@ substitutions:
   _TRIGGER_TYPE: "unknown"
   _TEST_SECRET: "DEFAULT_NOT_SET"
   _INTERNAL_TOKEN: "DEFAULT_NOT_SET"
-availableSecrets:
-  secretManager:
-  - versionName: projects/544160568466/secrets/cb-test-secret/versions/latest
-    env: "SECRET_FROM_MANAGER"
 options:
   logging: CLOUD_LOGGING_ONLY
 artifacts:
